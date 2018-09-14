@@ -4,7 +4,10 @@
   "description": "A Vue static website generator",
   "main": "index.js",
   "keywords": [
-    "Vue", "SSR", "static", "generator"
+    "Vue",
+    "SSR",
+    "static",
+    "generator"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,6 +15,7 @@
   "author": "Laegel <valentin.chouaf@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@alexbinary/rimraf": "^1.0.2",
     "mkdirp": "^0.5.1"
   }
 }
