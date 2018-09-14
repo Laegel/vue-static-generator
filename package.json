@@ -1,0 +1,17 @@
+{
+  "name": "vue-static-generator",
+  "version": "0.1.0",
+  "description": "A Vue static website generator",
+  "main": "index.js",
+  "keywords": [
+    "Vue", "SSR", "static", "generator"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Laegel <valentin.chouaf@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "mkdirp": "^0.5.1"
+  }
+}
