@@ -1,9 +1,6 @@
 
 const generateConfig = require("../../generate");
-const sitemap = require("sitemap");
-const Route = require("./src/Route");
 const Generator = require("./src/Generator");
-const { walkRoutes } = require("./src/utils");
 const rimraf = require("@alexbinary/rimraf");
 
 
