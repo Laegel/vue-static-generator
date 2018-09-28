@@ -1,31 +1,21 @@
-
-const generateConfig = require("../../generate");
 const Generator = require("./src/Generator");
 const rimraf = require("@alexbinary/rimraf");
-
-
-const languages = Object.keys(generateConfig.languages);
-if (0 === languages.length) {
-    throw new Error("You must define at least one language to use.");
-}
-
-const options = {
-    language: {
-        alias: "l",
-        accepts: languages
-    }
-};
-const defaultOptions = {
-    language: languages[0]
-};
 
 class GeneratorWrapper {
 
     static create(config, bundle, options) {
         this.generator = new Generator(config, bundle, options);
+        const languages = Object.keys(config.languages);
+        if (0 === languages.length) {
+            throw new Error("You must define at least one language to use.");
+        }
+
+        this.defaultOptions = {
+            language: languages[0]
+        };
     }
 
-    static async initialize() {
+    static async initialize(pool = {}) {
         const promises = [];
         for (const language in this.generator.config.languages) {
             promises.push(rimraf(this.generator.config.targetDirectory + "/" + language));
@@ -53,11 +43,11 @@ class GeneratorWrapper {
 
     static getArgs(options) {
         if (!options) {
-            return defaultOptions;
+            return this.defaultOptions;
         }
         const args = {};
-        for (const prop in defaultOptions) {
-            args[prop] = options[prop] || defaultOptions[prop];
+        for (const prop in this.defaultOptions) {
+            args[prop] = options[prop] || this.defaultOptions[prop];
         }
         return args;
     }
@@ -70,4 +60,4 @@ class GeneratorWrapper {
 module.exports = {
     Generator,
     GeneratorWrapper
-}
+};

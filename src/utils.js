@@ -10,4 +10,4 @@ function walkRoutes(route, callback) {
 
 module.exports = {
     walkRoutes
-}
+};

@@ -4,18 +4,30 @@ const fs = require("fs");
 const Route = require("./Route");
 const { walkRoutes } = require("./utils");
 
+const defaultConfig = {
+    fileIndex: "index",
+    fileExtension: ".html",
+    targetDirectory: "./dist",
+};
+
 module.exports = class Generator {
 
     constructor(config, bundle, options = null) {
         this.routes = {};
         this.types = {};
-        this.config = config;
+        this.pool = {};
+        this.config = {
+            ...defaultConfig,
+            ...config
+        };
         this.listeners = {
             before: [],
             after: []
         };
         this.renderer = createBundleRenderer(bundle, options);
         this.prepare();
+        this.queue = [];
+        this.disableQueue = false;
     }
 
     prepare() {
@@ -26,6 +38,7 @@ module.exports = class Generator {
             }
             this.routes[language] = [];
             this.types[language] = {};
+            this.pool[language] = {};
 
             this.config.languages[language].routes.forEach(routeConfig => {
                 const route = new Route(routeConfig);
@@ -40,6 +53,9 @@ module.exports = class Generator {
 
             this.routes[language].forEach(route => {
                 route.setFlattenedPath();
+                route.getPool = () => {
+                    return this.pool[language];
+                };
             });
         }
     }
@@ -83,11 +99,27 @@ module.exports = class Generator {
             values.forEach(value => {
                 uris.push(foundRoute.reach("resolver", value));
             });
-
+            if (foundRoute.hasOwnProperty("regenerate") && !this.disableQueue) {
+                this.enqueueRoute(foundRoute);
+            }
         } else {
             uris.push(route);
         }
         return uris;
+    }
+
+    enqueueRoute(route) {
+        const paths = route.reach("regenerate");        
+        paths.forEach(path => {
+            this.enqueuePath(path);
+        });
+    }
+
+    enqueuePath(path) {
+        const index = this.queue.indexOf(path);
+        if (-1 === index) {
+            this.queue.push(path);
+        }
     }
 
     findMatchingRouteConfig(route, args) {
@@ -139,12 +171,17 @@ module.exports = class Generator {
         uniquePaths.forEach(path => {
             promises.push(this.generate(path, args));
         });
+        
+        for (let i = 0; i < this.queue.length; ++i) {
+            promises.push(this.generate(this.queue[i], args));
+        }
         this.trigger("after", [uniquePaths, args]);
         return promises;
     }
 
     generateAll() {
         let promises = [];
+        this.disableQueue = true;
         for (const language in this.config.languages) {
             const args = {
                 language,
@@ -153,8 +190,10 @@ module.exports = class Generator {
             };
 
             for (const type in this.types[language]) {
-                const values = this.types[language][type].reach("data");
+                const values = this.types[language][type].reach("data", args);
+                this.pool[language][type] = values;
                 args.types[type] = values;
+
             }
             promises = promises.concat(this.generateByArgs(args));
         }
