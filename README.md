@@ -16,11 +16,11 @@ Multilingual is a core feature, as it's directly implied in the generation proce
 Although sitemap plays an important role in SEO, I'm still wondering if it should belong to core or if it shall be a kind of module. 
 
 ## Installation
-`npm i -S vue-static-decorator`
+`npm i -S vue-static-generator`
 
 or
 
-`yarn add vue-static-decorator -S`
+`yarn add vue-static-generator -S`
 
 Please note that you need the modules from your bundle JSON file to be installed and that "vue-server-renderer" package version must match Vue's.
 
